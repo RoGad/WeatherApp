@@ -1,11 +1,7 @@
 package com.example.weatherapppp;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -23,10 +19,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.textfield.TextInputEditText;
@@ -40,6 +39,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,12 +47,12 @@ public class MainActivity extends AppCompatActivity {
     private ProgressBar loadingPB;
     private TextView cityNameTV, temperatureTV, conditionTV;
     private TextInputEditText cityEdt;
-    private ImageView backIV, iconIV, searchIV;
-    private RecyclerView weatherRV;
+    private ImageView backIV;
+    private ImageView iconIV;
     private ArrayList<WeatherModal> weatherModalArrayList;
     private WeatherAdapter weatherAdapter;
     private LocationManager locationManager;
-    private int PERMISSION_CODE = 1;
+    private final int PERMISSION_CODE = 1;
     private String cityName;
 
     @Override
@@ -66,11 +66,11 @@ public class MainActivity extends AppCompatActivity {
         cityNameTV = findViewById(R.id.idTVCityName);
         temperatureTV = findViewById(R.id.idTVTemperature);
         conditionTV = findViewById(R.id.idTVCondition);
-        weatherRV = findViewById(R.id.idRVWeather);
+        RecyclerView weatherRV = findViewById(R.id.idRVWeather);
         cityEdt = findViewById(R.id.idEDTCity);
         backIV = findViewById(R.id.idIVBack);
         iconIV = findViewById(R.id.idIVIcon);
-        searchIV = findViewById(R.id.idIVSearch);
+        ImageView searchIV = findViewById(R.id.idIVSearch);
         weatherModalArrayList = new ArrayList<>();
         weatherAdapter = new WeatherAdapter(this, weatherModalArrayList);
         weatherRV.setAdapter(weatherAdapter);
@@ -105,16 +105,13 @@ public class MainActivity extends AppCompatActivity {
             getWeatherInfo(cityName);
         }
 
-        searchIV.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String city = cityEdt.getText().toString();
-                if (city.isEmpty()) {
-                    Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
-                } else {
-                    cityNameTV.setText(cityName);
-                    getWeatherInfo(city);
-                }
+        searchIV.setOnClickListener(v -> {
+            String city = Objects.requireNonNull(cityEdt.getText()).toString();
+            if (city.isEmpty()) {
+                Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
+            } else {
+                cityNameTV.setText(cityName);
+                getWeatherInfo(city);
             }
         });
 
@@ -160,53 +157,45 @@ public class MainActivity extends AppCompatActivity {
         cityNameTV.setText(cityName);
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                loadingPB.setVisibility(View.GONE);
-                homeRL.setVisibility(View.VISIBLE);
-                weatherModalArrayList.clear();
+        @SuppressLint({"SetTextI18n", "NotifyDataSetChanged"}) JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, response -> {
+            loadingPB.setVisibility(View.GONE);
+            homeRL.setVisibility(View.VISIBLE);
+            weatherModalArrayList.clear();
 
-                try {
-                    String temperature = response.getJSONObject("current").getString("temp_c");
-                    temperatureTV.setText(temperature + "°c");
-                    int isDay = response.getJSONObject("current").getInt("is_day");
-                    String condition = response.getJSONObject("current").getString("text");
-                    String conditionIcon = response.getJSONObject("current").getString("icon");
-                    Picasso.get().load("http".concat(conditionIcon) ).into(iconIV);
-                    conditionTV.setText(condition);
-                    if (isDay == 1) {
-                        Picasso.get().load("https://w.forfun.com/fetch/1d/1dc735db3dbd99ee448470d9ec277467.jpeg?h=1200&r=0.5").into(backIV);
-                    } else {
-                        Picasso.get().load("https://photocasa.ru/uploads/posts/2014-03/1395705634_800_8299.jpg").into(backIV);
-                    }
-
-                    JSONObject forecastObj = response.getJSONObject("forecast");
-                    JSONObject forecastO = forecastObj.getJSONArray("forecastday").getJSONObject(0);
-                    JSONArray hourArray = forecastO.getJSONArray("hour");
-
-                    for (int i = 0; i < hourArray.length(); i++) {
-                        JSONObject hourObj = hourArray.getJSONObject(i);
-                        String time = hourObj.getString("time");
-                        String temper = hourObj.getString("temp_c");
-                        String img = hourObj.getJSONObject("condition").getString("icon");
-                        String wind = hourObj.getString("wind_kph");
-                        weatherModalArrayList.add(new WeatherModal(time, temper, img, wind));
-                    }
-                    weatherAdapter.notifyDataSetChanged();
-
-
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+            try {
+                String temperature = response.getJSONObject("current").getString("temp_c");
+                temperatureTV.setText(temperature + "°c");
+                int isDay = response.getJSONObject("current").getInt("is_day");
+                String condition = response.getJSONObject("current").getString("text");
+                String conditionIcon = response.getJSONObject("current").getString("icon");
+                Picasso.get().load("http".concat(conditionIcon) ).into(iconIV);
+                conditionTV.setText(condition);
+                if (isDay == 1) {
+                    Picasso.get().load("https://w.forfun.com/fetch/1d/1dc735db3dbd99ee448470d9ec277467.jpeg?h=1200&r=0.5").into(backIV);
+                } else {
+                    Picasso.get().load("https://photocasa.ru/uploads/posts/2014-03/1395705634_800_8299.jpg").into(backIV);
                 }
 
+                JSONObject forecastObj = response.getJSONObject("forecast");
+                JSONObject forecastO = forecastObj.getJSONArray("forecastday").getJSONObject(0);
+                JSONArray hourArray = forecastO.getJSONArray("hour");
+
+                for (int i = 0; i < hourArray.length(); i++) {
+                    JSONObject hourObj = hourArray.getJSONObject(i);
+                    String time = hourObj.getString("time");
+                    String temper = hourObj.getString("temp_c");
+                    String img = hourObj.getJSONObject("condition").getString("icon");
+                    String wind = hourObj.getString("wind_kph");
+                    weatherModalArrayList.add(new WeatherModal(time, temper, img, wind));
+                }
+                weatherAdapter.notifyDataSetChanged();
+
+
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show();
-            }
-        });
+
+        }, error -> Toast.makeText(MainActivity.this, "Please enter city name", Toast.LENGTH_SHORT).show());
 
         requestQueue.add(jsonObjectRequest);
 

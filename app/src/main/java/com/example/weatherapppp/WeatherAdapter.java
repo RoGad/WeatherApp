@@ -1,5 +1,6 @@
 package com.example.weatherapppp;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,14 +34,15 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         return new ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull WeatherAdapter.ViewHolder holder, int position) {
         WeatherModal modal = weatherModalArrayList.get(position);
         holder.temperatureTV.setText(modal.getTemperature()+"°c");
         Picasso.get().load("http:".concat(modal.getIcon())).into(holder.conditionIV);
         holder.windTV.setText(modal.getWindSpeed()+"Km/h");
-        SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd hh:mm");
-        SimpleDateFormat output = new SimpleDateFormat("hh:mm aa");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat input = new SimpleDateFormat("yyyy-MM-dd hh:mm");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat output = new SimpleDateFormat("hh:mm aa");
         try{
             Date t = input.parse(modal.getTime());
             holder.timeTV.setText(output.format(t));
@@ -55,7 +57,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.ViewHold
         return weatherModalArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         private TextView windTV, temperatureTV, timeTV;
         private ImageView conditionIV;
         public ViewHolder(@NonNull View itemView) {
