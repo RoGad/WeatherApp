@@ -153,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getWeatherInfo(String cityName) {
-        String url = "http://api.weatherapi.com/v1/forecast.json?key=06ed0d3eef2a4d55b15143203232504&q=" + cityName + "&days=1&aqi=yes&alerts=yes";
+        String url = "https://api.weatherapi.com/v1/forecast.json?key=06ed0d3eef2a4d55b15143203232504&q=" + cityName + "&days=1&aqi=yes&alerts=yes";
         cityNameTV.setText(cityName);
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
 
@@ -166,8 +166,8 @@ public class MainActivity extends AppCompatActivity {
                 String temperature = response.getJSONObject("current").getString("temp_c");
                 temperatureTV.setText(temperature + "°c");
                 int isDay = response.getJSONObject("current").getInt("is_day");
-                String condition = response.getJSONObject("current").getString("text");
-                String conditionIcon = response.getJSONObject("current").getString("icon");
+                String condition = response.getJSONObject("current").getJSONObject("condition").getString("text");
+                String conditionIcon = response.getJSONObject("current").getJSONObject("condition").getString("icon");
                 Picasso.get().load("http".concat(conditionIcon) ).into(iconIV);
                 conditionTV.setText(condition);
                 if (isDay == 1) {
