@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 int isDay = response.getJSONObject("current").getInt("is_day");
                 String condition = response.getJSONObject("current").getJSONObject("condition").getString("text");
                 String conditionIcon = response.getJSONObject("current").getJSONObject("condition").getString("icon");
-                Picasso.get().load("http".concat(conditionIcon) ).into(iconIV);
+                Picasso.get().load("https:".concat(conditionIcon)).into(iconIV);
                 conditionTV.setText(condition);
                 if (isDay == 1) {
                     Picasso.get().load("https://w.forfun.com/fetch/1d/1dc735db3dbd99ee448470d9ec277467.jpeg?h=1200&r=0.5").into(backIV);
