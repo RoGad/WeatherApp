@@ -11,14 +11,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/idPBLoading"
-        android:visibility="gone"
+        android:visibility="visable"
         android:layout_centerInParent="true"
         />
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/idRLHome"
-        android:visibility="visable"
+        android:visibility="gone"
         >
         <ImageView
             android:layout_width="match_parent"
